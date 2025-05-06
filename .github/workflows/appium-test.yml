@@ -1,0 +1,39 @@
+name: Run Appium Two-Device Test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    runs-on: self-hosted  # Your own machine with devices + Appium installed
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven
+        run: mvn clean compile
+
+      - name: Start Appium Server for Device 1
+        run: |
+          appium --port 4723 --base-path /wd/hub --log appium1.log &
+        shell: bash
+
+      - name: Start Appium Server for Device 2
+        run: |
+          appium --port 4725 --base-path /wd/hub --log appium2.log &
+        shell: bash
+
+      - name: Wait for Appium servers
+        run: sleep 10
+
+      - name: Run Two Device Test
+        run: mvn exec:java -Dexec.mainClass="TwoDeviceChatVerification"
