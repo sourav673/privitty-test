@@ -28,4 +28,8 @@ public class BaseTest {
             driver.quit();
         }
     }
+
+    public void teardownDriver() {
+
+    }
 }
